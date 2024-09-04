@@ -68,11 +68,13 @@ private:
     	auto maps = lsplt::MapInfo::Scan();
         struct stat st;
         if (stat("/data", &st)) return;
-        // hide module file from maps
-        // detection: https://github.com/vvb2060/MagiskDetector/blob/master/README_ZH.md
-        // hide all maps with path is data partition but path is not /data/*
+
+        // 隐藏与 com.termux 相关的内存映射
         for (auto iter = maps.begin(); iter != maps.end();) {
-            if (iter->dev != st.st_dev || 
+            if (iter->path.find("com.termux") != std::string::npos) {
+                LOGI("Hiding Termux related mapping: %s\n", iter->path.data());
+                iter = maps.erase(iter);
+            } else if (iter->dev != st.st_dev || 
             (!(iter->path).starts_with("/system/") &&
              !(iter->path).starts_with("/vendor/") &&
              !(iter->path).starts_with("/product/") &&
