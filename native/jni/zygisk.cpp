@@ -24,13 +24,13 @@
 
 class MapHide : public zygisk::ModuleBase {
 public:
-    void onLoad(Api *api, JNIEnv *env) override {
+    void onLoad(zygisk::Api *api, JNIEnv *env) override {  // 这里明确指定 zygisk 命名空间
         this->api = api;
         this->env = env;
         LOGI("Zygisk 模块已加载");
     }
 
-    void preAppSpecialize(AppSpecializeArgs *args) override {
+    void preAppSpecialize(zygisk::AppSpecializeArgs *args) override {  // 这里明确指定 zygisk 命名空间
         uint32_t flags = api->getFlags();
         if ((flags & zygisk::PROCESS_ON_DENYLIST) && args->uid > 1000) {
             LOGI("执行模块隐藏操作...");
@@ -39,7 +39,7 @@ public:
         api->setOption(zygisk::Option::DLCLOSE_MODULE_LIBRARY);
     }
 
-    void preServerSpecialize(ServerSpecializeArgs *args) override {
+    void preServerSpecialize(zygisk::ServerSpecializeArgs *args) override {  // 这里明确指定 zygisk 命名空间
         LOGI("system_server 进程启动");
         int fd = api->connectCompanion();  // 创建伴生进程
         if (fd != -1) {
@@ -50,7 +50,7 @@ public:
     }
 
 private:
-    Api *api;
+    zygisk::Api *api;  // 这里明确指定 zygisk 命名空间
     JNIEnv *env;
 
     void DoHide() {
@@ -94,7 +94,6 @@ private:
 static void companion_handler(int fd) {
     LOGI("Root 伴生进程启动");
     // 在这里添加 Root 权限操作
-    // 可以处理高权限的操作，例如操作系统文件、隐藏模块等
     close(fd);
 }
 
